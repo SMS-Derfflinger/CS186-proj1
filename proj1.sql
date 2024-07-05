@@ -16,6 +16,11 @@ DROP VIEW IF EXISTS q4iii;
 DROP VIEW IF EXISTS q4iv;
 DROP VIEW IF EXISTS q4v;
 DROP VIEW IF EXISTS lslg;
+DROP VIEW IF EXISTS bin_2016;
+DROP VIEW IF EXISTS bins_2016;
+DROP VIEW IF EXISTS max_2000_2001;
+
+DROP TABLE IF EXISTS binids;
 
 -- Question 0
 CREATE VIEW q0(era)
@@ -143,28 +148,74 @@ AS
 -- Question 4i
 CREATE VIEW q4i(yearid, min, max, avg)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  --SELECT 1, 1, 1, 1 -- replace this line
+  SELECT yearID, min(salary), max(salary), avg(salary)
+  FROM salaries
+  GROUP BY yearID
+  ORDER BY yearID
 ;
 
 -- Question 4ii
+CREATE TABLE binids(binid);
+INSERT INTO binids VALUES (0), (1), (2), (3), (4), (5), (6), (7), (8), (9);
+
+CREATE VIEW bin_2016(starts, ends, width)
+AS
+  SELECT MIN(salary) starts, MAX(salary) ends, (MAX(salary) - MIN(salary)) / 10.0 width
+  FROM salaries
+  WHERE yearid = 2016
+;
+
+CREATE VIEW bins_2016(binid, starts, width)
+AS
+  SELECT MIN(CAST((salary - starts) / width AS INT), 9) binid, starts, width
+  FROM salaries, bin_2016
+  WHERE yearid = 2016
+;
+
 CREATE VIEW q4ii(binid, low, high, count)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  --SELECT 1, 1, 1, 1 -- replace this line
+  SELECT binid, starts + binid * width, starts + (binid + 1) * width, COUNT(*)
+  FROM bins_2016
+  GROUP BY binid
 ;
 
 -- Question 4iii
 CREATE VIEW q4iii(yearid, mindiff, maxdiff, avgdiff)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  --SELECT 1, 1, 1, 1 -- replace this line
+  SELECT year2.yearid, year2.min - year1.min, year2.max - year1.max, year2.avg - year1.avg
+  FROM q4i year1 INNER JOIN q4i year2 ON year1.yearid + 1 = year2.yearid
+  ORDER BY year1.yearid
 ;
 
 -- Question 4iv
+CREATE VIEW max_2000_2001(yearid, salary)
+AS
+  SELECT yearid, MAX(salary)
+  FROM salaries
+  WHERE yearid = 2000 OR yearid = 2001
+  GROUP BY yearid
+;
+
 CREATE VIEW q4iv(playerid, namefirst, namelast, salary, yearid)
 AS
-  SELECT 1, 1, 1, 1, 1 -- replace this line
+  --SELECT 1, 1, 1, 1, 1 -- replace this line
+  SELECT p.playerid, p.namefirst, p.namelast, max.salary, max.yearid
+  FROM max_2000_2001 max INNER JOIN salaries s 
+  ON max.yearid = s.yearid AND max.salary = s.salary
+  INNER JOIN people p
+  ON s.playerid = p.playerid
 ;
+
 -- Question 4v
 CREATE VIEW q4v(team, diffAvg) AS
-  SELECT 1, 1 -- replace this line
+  --SELECT 1, 1 -- replace this line
+  SELECT a.teamid, MAX(s.salary) - MIN(s.salary)
+  FROM allstarfull a INNER JOIN salaries s
+  ON a.playerid = s.playerid AND a.yearid = s.yearid
+  WHERE s.yearid = 2016
+  GROUP BY a.teamid
 ;
 

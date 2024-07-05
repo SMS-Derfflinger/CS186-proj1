@@ -1,3 +1,3 @@
 # Project 1: SQL
 
-This project is due on **Wednesday, 9/8/2021 at 11:59PM PDT (GMT-7)**. Follow the instructions [here](https://cs186.gitbook.io/project/assignments/proj1) to get started.
+This repository contains my solution for CS186 project 1. You can follow the instructions [here](https://github.com/SMS-Derfflinger/CS186-sp24-gitbook/blob/master/assignments/proj1) to get started.
